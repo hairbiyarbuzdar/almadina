@@ -7,12 +7,12 @@ import { Reveal, RevealStagger, CountUp } from "../components/animations";
 export const metadata: Metadata = {
   title: "Our Story — Al-Madina",
   description:
-    "For more than 25 years, Al-Madina has crafted clean, effective cosmetics and skincare loved across generations.",
+    "For more than 25 years, Al-Madina has brought clean, trusted skincare and cosmetics to families across generations.",
 };
 
 const STATS = [
-  { value: "25+", label: "Years of craft" },
-  { value: "120+", label: "Products created" },
+  { value: "25+", label: "Years in beauty" },
+  { value: "120+", label: "Products stocked" },
   { value: "2", label: "Store locations" },
   { value: "1000s", label: "Happy customers" },
 ];
@@ -34,17 +34,17 @@ const TIMELINE = [
   {
     year: "1999",
     title: "A single counter",
-    text: "Haji Murtaza opens a modest beauty counter in Quetta, hand-blending creams for a loyal neighbourhood following.",
+    text: "Haji Murtaza opens a modest beauty counter in Quetta, hand-picking skincare and cosmetics for a loyal neighbourhood following.",
   },
   {
     year: "2006",
     title: "Our first flagship",
-    text: "Growing demand leads to our first dedicated store in Churi Gali, Quetta — and our first in-house formulation lab.",
+    text: "Growing demand leads to our first dedicated store in Churi Gali, Quetta — bringing a wider range of trusted brands under one roof.",
   },
   {
     year: "2013",
     title: "Going clean",
-    text: "We reformulate the entire range around clean, non-toxic ingredients, years ahead of the trend.",
+    text: "We start championing clean, non-toxic brands, curating our shelves around them years ahead of the trend.",
   },
   {
     year: "2019",
@@ -62,22 +62,22 @@ const VALUES = [
   {
     Icon: HeartIcon,
     title: "Clean & Non-Toxic",
-    text: "Every formula is free from parabens, sulphates and needless fillers — only what your skin needs.",
+    text: "Every product we stock is free from parabens, sulphates and needless fillers — only what your skin needs.",
   },
   {
     Icon: RefreshIcon,
     title: "Cruelty-Free",
-    text: "Never tested on animals. Kindness is part of the recipe, from first draft to final bottle.",
+    text: "We only carry brands that never test on animals. Kindness is part of every choice we make.",
   },
   {
     Icon: StarIcon,
     title: "Proven by Time",
-    text: "25 years of feedback from real customers shapes everything we make — and everything we don't.",
+    text: "25 years of feedback from real customers shapes everything we stock — and everything we don't.",
   },
   {
     Icon: TruckIcon,
-    title: "Made for Everyone",
-    text: "Skincare designed for all skin types, tones and generations. Beauty, inspired by real life.",
+    title: "For Everyone",
+    text: "Skincare and beauty for all skin types, tones and generations. Beauty, inspired by real life.",
   },
 ];
 
@@ -104,8 +104,8 @@ export default function OurStoryPage() {
               Our Story
             </h1>
             <p className="max-w-xl text-white/85 leading-relaxed">
-              Twenty-five years of blending science, nature and a genuine love
-              for skin — one honest formula at a time.
+              Twenty-five years of bringing our community the beauty and skincare
+              brands they trust — one honest product at a time.
             </p>
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function OurStoryPage() {
           <div className="relative aspect-[5/6] overflow-hidden bg-cream order-1 lg:order-none">
             <Image
               src="/story/heritage.jpg"
-              alt="Hand-crafted Al-Madina formulations"
+              alt="Curated skincare and cosmetics at Al-Madina"
               fill
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
@@ -133,15 +133,16 @@ export default function OurStoryPage() {
             <div className="space-y-4 text-ink-soft leading-relaxed">
               <p>
                 Al-Madina began in 1999 in Quetta, when Haji Murtaza opened a
-                single counter with a simple belief: good skincare should be
-                honest, effective and made for real people. What started by hand
-                has grown into a name trusted by families across generations.
+                small beauty counter with a simple belief: everyone deserves
+                access to skincare and cosmetics they can genuinely trust. What
+                started as one modest counter has grown into a name families
+                rely on across generations.
               </p>
               <p>
-                For more than 25 years we&apos;ve stayed close to what matters —
-                clean ingredients, careful craft, and formulas we&apos;d happily
-                use ourselves. We&apos;ve grown, but the promise behind every
-                bottle hasn&apos;t changed.
+                For more than 25 years we&apos;ve carefully chosen every brand on
+                our shelves — clean, effective products we&apos;d happily use
+                ourselves. We&apos;ve grown, but the promise behind every product
+                we stock hasn&apos;t changed.
               </p>
             </div>
           </div>
@@ -230,9 +231,9 @@ export default function OurStoryPage() {
               A note from our founder
             </p>
             <blockquote className="font-display text-2xl sm:text-3xl text-ink leading-snug mb-6">
-              &ldquo;We never set out to chase trends. We set out to make
-              skincare our own families could trust — and 25 years later,
-              that&apos;s still the only brief that matters.&rdquo;
+              &ldquo;We never set out to chase trends. We set out to stock only
+              what our own families could trust — and 25 years later, that&apos;s
+              still the only brief that matters.&rdquo;
             </blockquote>
             <p className="text-ink font-medium">Haji Murtaza</p>
             <p className="text-sm text-ink-soft">Founder, Al-Madina · Since 1999</p>
@@ -279,8 +280,8 @@ export default function OurStoryPage() {
             Discover the collection
           </h2>
           <p className="text-ink-soft mb-8 max-w-md mx-auto">
-            Twenty-five years of craft, in every bottle. Find the ritual that
-            fits your skin.
+            Twenty-five years of trusted beauty, all in one place. Find the
+            ritual that fits your skin.
           </p>
           <Link
             href="/shop"
