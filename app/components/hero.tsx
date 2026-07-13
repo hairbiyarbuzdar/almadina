@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { RevealStagger } from "./animations";
 
 export function Hero() {
   return (
@@ -22,7 +23,12 @@ export function Hero() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 items-center min-h-[82vh] lg:min-h-[88vh]">
           {/* Copy */}
-          <div className="order-2 lg:order-1 max-w-md pb-12 lg:pb-0">
+          <RevealStagger
+            as="div"
+            y={30}
+            stagger={0.15}
+            className="order-2 lg:order-1 max-w-md pb-12 lg:pb-0"
+          >
             <p className="text-[11px] uppercase tracking-[0.25em] text-ink-soft mb-5">
               Essential Items
             </p>
@@ -41,11 +47,11 @@ export function Hero() {
             >
               Shop Now
             </Link>
-          </div>
+          </RevealStagger>
 
           {/* Mobile / tablet: photo as a contained block (native orientation) */}
           <div className="order-1 lg:hidden -mx-4 sm:-mx-6 mb-8">
-            <div className="relative w-full aspect-[896/1200] max-h-[62vh]">
+            <div className="relative w-full aspect-[896/1070] max-h-[62vh]">
               <Image
                 src="/photo1.png"
                 alt="Woman with clear, glowing skin holding a moisturizing cream"

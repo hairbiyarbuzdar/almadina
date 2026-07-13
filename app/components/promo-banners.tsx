@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { RevealStagger } from "./animations";
 
 export function PromoBanners() {
   return (
     <section className="pb-20 lg:pb-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-2">
+        <RevealStagger className="grid gap-6 lg:grid-cols-2" y={30}>
           {/* Left — new collection */}
           <div className="relative flex items-center overflow-hidden bg-cream min-h-[280px] p-8 sm:p-10">
             {/* Real product photo */}
@@ -65,7 +66,7 @@ export function PromoBanners() {
               </Link>
             </div>
           </div>
-        </div>
+        </RevealStagger>
       </div>
     </section>
   );

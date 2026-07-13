@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Product } from "../lib/products";
 import { StarIcon } from "./icons";
 
@@ -12,7 +13,7 @@ export function ProductCard({
   const onSale = product.badge?.startsWith("-");
 
   return (
-    <div className="group">
+    <Link href={`/shop/${product.slug}`} className="group block">
       <div className="relative mb-4 overflow-hidden bg-cream aspect-square">
         {product.badge && (
           <span
@@ -31,11 +32,11 @@ export function ProductCard({
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        {/* Add to cart on hover */}
+        {/* View product on hover */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <button className="w-full bg-ink/90 text-white text-xs uppercase tracking-widest py-3 hover:bg-brand transition-colors">
-            Add to Cart
-          </button>
+          <span className="block w-full text-center bg-ink/90 text-white text-xs uppercase tracking-widest py-3">
+            View Product
+          </span>
         </div>
       </div>
 
@@ -45,11 +46,11 @@ export function ProductCard({
         )}
         <span className="text-ink font-medium">{product.price}</span>
       </div>
-      <h3 className="text-sm text-ink-soft text-center mt-1.5 mb-2 px-2">
+      <h3 className="text-sm text-ink-soft text-center mt-1.5 mb-2 px-2 group-hover:text-ink transition-colors">
         {product.name}
       </h3>
       <Stars value={product.rating} />
-    </div>
+    </Link>
   );
 }
 

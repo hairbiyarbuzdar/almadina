@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { ShopGrid } from "../components/shop-grid";
+import { getProducts, getCategoryNames } from "../lib/data";
 
 export const metadata: Metadata = {
   title: "Shop — Al-Madina",
@@ -8,7 +9,20 @@ export const metadata: Metadata = {
     "Browse the full Al-Madina collection of clean skincare — cleansers, serums, moisturizers, masks and more.",
 };
 
-export default function ShopPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ShopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category } = await searchParams;
+  const [products, categories] = await Promise.all([
+    getProducts(),
+    getCategoryNames(),
+  ]);
+  const initialCategory =
+    category && categories.includes(category) ? category : "All";
   return (
     <main className="flex-1">
       {/* Hero */}
@@ -36,7 +50,12 @@ export default function ShopPage() {
         </div>
       </section>
 
-      <ShopGrid />
+      <ShopGrid
+        key={initialCategory}
+        products={products}
+        categories={categories}
+        initialCategory={initialCategory}
+      />
     </main>
   );
 }

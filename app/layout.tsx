@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "./components/site-header";
-import { SiteFooter } from "./components/site-footer";
+import { CartProvider } from "./lib/cart-context";
+import { ConditionalChrome } from "./components/conditional-chrome";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -32,9 +32,9 @@ export default function RootLayout({
       className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">
-        <SiteHeader />
-        {children}
-        <SiteFooter />
+        <CartProvider>
+          <ConditionalChrome>{children}</ConditionalChrome>
+        </CartProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { TruckIcon, RefreshIcon, HeartIcon, StarIcon } from "../components/icons";
+import { Reveal, RevealStagger, CountUp } from "../components/animations";
 
 export const metadata: Metadata = {
   title: "Our Story — Al-Madina",
@@ -150,33 +151,33 @@ export default function OurStoryPage() {
       {/* Stats band */}
       <section className="bg-cream">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 text-center">
+          <RevealStagger className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 text-center">
             {STATS.map((s) => (
               <div key={s.label}>
                 <p className="font-display text-5xl lg:text-6xl text-ink">
-                  {s.value}
+                  <CountUp value={s.value} />
                 </p>
                 <p className="text-xs uppercase tracking-[0.18em] text-ink-soft mt-2">
                   {s.label}
                 </p>
               </div>
             ))}
-          </div>
+          </RevealStagger>
         </div>
       </section>
 
       {/* Timeline */}
       <section className="py-20 lg:py-28">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <Reveal className="text-center mb-14">
             <h2 className="font-display text-4xl sm:text-5xl text-ink">
               The journey
             </h2>
             <p className="text-ink-soft mt-3">
               Milestones from a 25-year love of skin
             </p>
-          </div>
-          <ol className="relative border-l border-black/10 ml-3 space-y-12">
+          </Reveal>
+          <RevealStagger as="ol" className="relative border-l border-black/10 ml-3 space-y-12" stagger={0.15}>
             {TIMELINE.map((t) => (
               <li key={t.year} className="relative pl-8">
                 <span className="absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full bg-brand ring-4 ring-white" />
@@ -185,22 +186,22 @@ export default function OurStoryPage() {
                 <p className="text-ink-soft leading-relaxed">{t.text}</p>
               </li>
             ))}
-          </ol>
+          </RevealStagger>
         </div>
       </section>
 
       {/* Values */}
       <section className="bg-sage-soft py-20 lg:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <Reveal className="text-center mb-14">
             <h2 className="font-display text-4xl sm:text-5xl text-ink">
               What we stand for
             </h2>
             <p className="text-ink-soft mt-3">
               The principles that have guided us since day one
             </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          </Reveal>
+          <RevealStagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
             {VALUES.map(({ Icon, title, text }) => (
               <div key={title} className="text-center">
                 <Icon className="w-9 h-9 mx-auto text-brand mb-4" />
@@ -208,7 +209,7 @@ export default function OurStoryPage() {
                 <p className="text-sm text-ink-soft leading-relaxed">{text}</p>
               </div>
             ))}
-          </div>
+          </RevealStagger>
         </div>
       </section>
 
@@ -242,7 +243,7 @@ export default function OurStoryPage() {
       {/* Visit our store */}
       <section className="bg-cream py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <Reveal className="text-center mb-12">
             <h2 className="font-display text-4xl sm:text-5xl text-ink">
               Come say hello
             </h2>
@@ -250,8 +251,8 @@ export default function OurStoryPage() {
               Find us in Quetta and Hub Chowki. Visit us in-store for a personal
               skincare consultation.
             </p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-8">
+          </Reveal>
+          <RevealStagger className="grid sm:grid-cols-2 gap-8" y={30}>
             {STORES.map((store) => (
               <div key={store.city}>
                 <div className="relative aspect-[4/3] overflow-hidden bg-mist mb-5">
@@ -267,13 +268,13 @@ export default function OurStoryPage() {
                 <p className="text-ink-soft mt-1">{store.address}</p>
               </div>
             ))}
-          </div>
+          </RevealStagger>
         </div>
       </section>
 
       {/* CTA */}
       <section className="py-20 lg:py-24">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
+        <Reveal className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-display text-4xl sm:text-5xl text-ink mb-4">
             Discover the collection
           </h2>
@@ -287,7 +288,7 @@ export default function OurStoryPage() {
           >
             Shop the Collection
           </Link>
-        </div>
+        </Reveal>
       </section>
     </main>
   );

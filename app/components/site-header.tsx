@@ -1,36 +1,71 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { BagIcon } from "./icons";
+import { BagIcon, SearchIcon } from "./icons";
+import { useCart } from "../lib/cart-context";
+import { SearchOverlay } from "./search-overlay";
 
-const SHOP_MENU = [
-  {
-    title: "Shop by Category",
-    links: ["Cleansers", "Moisturizers", "Serums & Oils", "Masks", "Sunscreen"],
-  },
-  {
-    title: "By Concern",
-    links: [
-      "Dryness",
-      "Acne & Blemishes",
-      "Anti-Aging",
-      "Brightening",
-      "Sensitive Skin",
-      "Redness",
-    ],
-  },
-  {
-    title: "Essentials",
-    links: ["New Arrivals", "Best Sellers", "Gift Sets", "Bundles", "Our Story"],
-  },
+const CONCERNS = [
+  "Dryness",
+  "Acne & Blemishes",
+  "Anti-Aging",
+  "Brightening",
+  "Sensitive Skin",
+  "Redness",
 ];
+const ESSENTIALS = [
+  "New Arrivals",
+  "Best Sellers",
+  "Gift Sets",
+  "Bundles",
+  "Our Story",
+];
+// Shown until the live categories load (and as a fallback).
+const FALLBACK_CATEGORIES = [
+  "Cleansers",
+  "Moisturizers",
+  "Serums & Oils",
+  "Masks",
+  "Sunscreen",
+];
+
+type MenuColumn = {
+  title: string;
+  links: string[];
+  isCategory?: boolean;
+};
+
+function menuHref(col: MenuColumn, link: string): string {
+  if (link === "Our Story") return "/our-story";
+  if (col.isCategory) return `/shop?category=${encodeURIComponent(link)}`;
+  return "/shop";
+}
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [categories, setCategories] = useState<string[]>(FALLBACK_CATEGORIES);
+  const { count, openCart } = useCart();
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load live categories from the database.
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((r) => r.json())
+      .then((data: string[]) => {
+        if (Array.isArray(data) && data.length) setCategories(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const shopMenu: MenuColumn[] = [
+    { title: "Shop by Category", links: categories, isCategory: true },
+    { title: "By Concern", links: CONCERNS },
+    { title: "Essentials", links: ESSENTIALS },
+  ];
 
   const openShop = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -99,22 +134,30 @@ export function SiteHeader() {
             >
               Our Story
             </Link>
-            <a
-              href="#"
+            <Link
+              href="/contact"
               className="uppercase hover:text-brand transition-colors"
             >
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Icons (right) */}
-          <div className="flex items-center text-ink">
+          <div className="flex items-center gap-4 lg:gap-5 text-ink">
             <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search"
+              className="hover:text-brand transition-colors"
+            >
+              <SearchIcon className="w-5 h-5" />
+            </button>
+            <button
+              onClick={openCart}
               aria-label="Cart"
               className="relative hover:text-brand transition-colors"
             >
               <BagIcon className="w-5 h-5" />
-              <Badge>0</Badge>
+              {count > 0 && <Badge>{count}</Badge>}
             </button>
           </div>
         </div>
@@ -131,7 +174,7 @@ export function SiteHeader() {
         }`}
       >
         <div className="mx-auto max-w-7xl px-8 py-12 grid grid-cols-[1fr_1fr_1fr_1.3fr] gap-10">
-          {SHOP_MENU.map((col, i) => (
+          {shopMenu.map((col, i) => (
             <div
               key={col.title}
               className={i > 0 ? "border-l border-black/10 pl-10" : ""}
@@ -143,7 +186,7 @@ export function SiteHeader() {
                 {col.links.map((link) => (
                   <li key={link}>
                     <Link
-                      href={link === "Our Story" ? "/our-story" : "/shop"}
+                      href={menuHref(col, link)}
                       onClick={closeShopNow}
                       className="text-[15px] text-ink hover:text-brand transition-colors"
                     >
@@ -189,7 +232,7 @@ export function SiteHeader() {
       {/* Mobile nav */}
       {open && (
         <nav className="lg:hidden border-t border-black/5 bg-white px-4 py-4 space-y-5">
-          {SHOP_MENU.map((col) => (
+          {shopMenu.map((col) => (
             <div key={col.title}>
               <p className="text-[11px] uppercase tracking-[0.2em] text-ink-soft mb-2">
                 {col.title}
@@ -198,7 +241,7 @@ export function SiteHeader() {
                 {col.links.map((link) => (
                   <Link
                     key={link}
-                    href={link === "Our Story" ? "/our-story" : "/shop"}
+                    href={menuHref(col, link)}
                     onClick={() => setOpen(false)}
                     className="text-sm text-ink hover:text-brand"
                   >
@@ -216,12 +259,18 @@ export function SiteHeader() {
             >
               Our Story
             </Link>
-            <a href="#" className="text-sm uppercase tracking-[0.18em] text-ink">
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="text-sm uppercase tracking-[0.18em] text-ink"
+            >
               Contact
-            </a>
+            </Link>
           </div>
         </nav>
       )}
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   );
 }

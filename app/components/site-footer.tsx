@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 const COLUMNS = [
@@ -17,6 +19,7 @@ const COLUMNS = [
 
 function hrefFor(col: string, link: string): string {
   if (link === "Our Story") return "/our-story";
+  if (link === "Contact") return "/contact";
   if (col === "Shop") return "/shop";
   return "#";
 }
