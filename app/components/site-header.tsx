@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "motion/react";
 import { BagIcon, SearchIcon } from "./icons";
 import { useCart } from "../lib/cart-context";
 import { SearchOverlay } from "./search-overlay";
@@ -83,10 +84,10 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-sm border-b border-black/5">
       {/* Announcement bar */}
       <div className="bg-brand text-white text-center text-xs tracking-wide py-2 px-4">
-        Free shipping on all orders over Rs 22,000
+        Free delivery on all orders over Rs 10,000
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 sm:px-10 lg:px-16">
         <div className="flex items-center justify-between h-16 lg:h-24">
           {/* Mobile menu button */}
           <button
@@ -105,7 +106,7 @@ export function SiteHeader() {
           {/* Logo (left) */}
           <Link
             href="/"
-            className="font-display text-2xl lg:text-[28px] font-semibold tracking-[0.3em] text-ink lg:pl-4"
+            className="font-display text-2xl lg:text-[28px] font-semibold tracking-[0.3em] text-ink"
           >
             AL-MADINA
           </Link>
@@ -154,10 +155,11 @@ export function SiteHeader() {
             <button
               onClick={openCart}
               aria-label="Cart"
+              data-cart-target
               className="relative hover:text-brand transition-colors"
             >
               <BagIcon className="w-5 h-5" />
-              {count > 0 && <Badge>{count}</Badge>}
+              {count > 0 && <Badge key={count}>{count}</Badge>}
             </button>
           </div>
         </div>
@@ -173,7 +175,7 @@ export function SiteHeader() {
             : "opacity-0 invisible -translate-y-1 pointer-events-none"
         }`}
       >
-        <div className="mx-auto max-w-7xl px-8 py-12 grid grid-cols-[1fr_1fr_1fr_1.3fr] gap-10">
+        <div className="mx-auto max-w-[1536px] px-8 py-12 grid grid-cols-[1fr_1fr_1fr_1.3fr] gap-10">
           {shopMenu.map((col, i) => (
             <div
               key={col.title}
@@ -277,8 +279,13 @@ export function SiteHeader() {
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-brand text-white text-[10px] leading-4 text-center">
+    <motion.span
+      initial={{ scale: 0.4 }}
+      animate={{ scale: 1 }}
+      transition={{ type: "spring", stiffness: 500, damping: 14 }}
+      className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-brand text-white text-[10px] leading-4 text-center"
+    >
       {children}
-    </span>
+    </motion.span>
   );
 }

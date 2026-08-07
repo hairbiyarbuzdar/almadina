@@ -21,7 +21,7 @@ const PRESS = [
 export function AsSeenIn() {
   return (
     <section className="bg-sage-soft">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
         <Reveal as="h2" className="text-center font-display text-3xl sm:text-4xl text-ink mb-12">
           As seen in
         </Reveal>

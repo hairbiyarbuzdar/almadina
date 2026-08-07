@@ -32,7 +32,7 @@ const STORES = [
 
 const TIMELINE = [
   {
-    year: "1999",
+    year: "1998",
     title: "A single counter",
     text: "Haji Murtaza opens a modest beauty counter in Quetta, hand-picking skincare and cosmetics for a loyal neighbourhood following.",
   },
@@ -72,7 +72,7 @@ const VALUES = [
   {
     Icon: StarIcon,
     title: "Proven by Time",
-    text: "25 years of feedback from real customers shapes everything we stock — and everything we don't.",
+    text: "Over 25 years of feedback from real customers shapes everything we stock — and everything we don't.",
   },
   {
     Icon: TruckIcon,
@@ -95,16 +95,16 @@ export default function OurStoryPage() {
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-ink/45" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center text-center min-h-[52vh] lg:min-h-[62vh] text-white">
             <p className="text-[11px] uppercase tracking-[0.25em] mb-4 text-white/80">
-              Est. 1999
+              Est. 1998
             </p>
             <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl mb-5">
               Our Story
             </h1>
             <p className="max-w-xl text-white/85 leading-relaxed">
-              Twenty-five years of bringing our community the beauty and skincare
+              Over 25 years of bringing our community the beauty and skincare
               brands they trust — one honest product at a time.
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function OurStoryPage() {
 
       {/* Heritage intro */}
       <section className="py-20 lg:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-[5/6] overflow-hidden bg-cream order-1 lg:order-none">
             <Image
               src="/story/heritage.jpg"
@@ -125,14 +125,14 @@ export default function OurStoryPage() {
           </div>
           <div className="max-w-md">
             <p className="text-[11px] uppercase tracking-[0.25em] text-brand mb-5">
-              Since 1999
+              Since 1998
             </p>
             <h2 className="font-display text-4xl sm:text-5xl text-ink leading-tight mb-6">
-              A quarter-century in the making
+              More than 25 years in the making
             </h2>
             <div className="space-y-4 text-ink-soft leading-relaxed">
               <p>
-                Al-Madina began in 1999 in Quetta, when Haji Murtaza opened a
+                Al-Madina began in 1998 in Quetta, when Haji Murtaza opened a
                 small beauty counter with a simple belief: everyone deserves
                 access to skincare and cosmetics they can genuinely trust. What
                 started as one modest counter has grown into a name families
@@ -151,7 +151,7 @@ export default function OurStoryPage() {
 
       {/* Stats band */}
       <section className="bg-cream">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 py-16">
           <RevealStagger className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 text-center">
             {STATS.map((s) => (
               <div key={s.label}>
@@ -175,7 +175,7 @@ export default function OurStoryPage() {
               The journey
             </h2>
             <p className="text-ink-soft mt-3">
-              Milestones from a 25-year love of skin
+              Milestones from over 25 years in beauty
             </p>
           </Reveal>
           <RevealStagger as="ol" className="relative border-l border-black/10 ml-3 space-y-12" stagger={0.15}>
@@ -193,7 +193,7 @@ export default function OurStoryPage() {
 
       {/* Values */}
       <section className="bg-sage-soft py-20 lg:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <Reveal className="text-center mb-14">
             <h2 className="font-display text-4xl sm:text-5xl text-ink">
               What we stand for
@@ -216,7 +216,7 @@ export default function OurStoryPage() {
 
       {/* Founder note */}
       <section className="py-20 lg:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative aspect-[4/5] max-w-md overflow-hidden bg-cream order-1 lg:order-none">
             <Image
               src="/story/founder.jpg"
@@ -232,18 +232,18 @@ export default function OurStoryPage() {
             </p>
             <blockquote className="font-display text-2xl sm:text-3xl text-ink leading-snug mb-6">
               &ldquo;We never set out to chase trends. We set out to stock only
-              what our own families could trust — and 25 years later, that&apos;s
+              what our own families could trust — and over 25 years later, that&apos;s
               still the only brief that matters.&rdquo;
             </blockquote>
             <p className="text-ink font-medium">Haji Murtaza</p>
-            <p className="text-sm text-ink-soft">Founder, Al-Madina · Since 1999</p>
+            <p className="text-sm text-ink-soft">Founder, Al-Madina · Since 1998</p>
           </div>
         </div>
       </section>
 
       {/* Visit our store */}
       <section className="bg-cream py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <Reveal className="text-center mb-12">
             <h2 className="font-display text-4xl sm:text-5xl text-ink">
               Come say hello
@@ -280,7 +280,7 @@ export default function OurStoryPage() {
             Discover the collection
           </h2>
           <p className="text-ink-soft mb-8 max-w-md mx-auto">
-            Twenty-five years of trusted beauty, all in one place. Find the
+            Over 25 years of trusted beauty, all in one place. Find the
             ritual that fits your skin.
           </p>
           <Link

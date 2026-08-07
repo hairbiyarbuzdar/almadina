@@ -1,14 +1,54 @@
 "use client";
 
 import { useState } from "react";
+import { motion, useAnimationControls } from "motion/react";
 import { useCart } from "../lib/cart-context";
+import { useFlyToCart } from "./fly-to-cart";
 import { priceToNumber, type Product } from "../lib/products";
 
 export function AddToCart({ product }: { product: Product }) {
-  const { addItem, openCart } = useCart();
+  const { addItem } = useCart();
+  const fly = useFlyToCart();
   const [qty, setQty] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const controls = useAnimationControls();
 
   const outOfStock = product.stock !== undefined && product.stock <= 0;
+
+  const handleAdd = () => {
+    if (busy || outOfStock) return;
+
+    // Press feedback on the button itself (keyframes need a tween, not a spring).
+    controls.start({
+      scale: [1, 0.96, 1.03, 1],
+      transition: { duration: 0.35, ease: "easeOut", times: [0, 0.3, 0.65, 1] },
+    });
+
+    const addNow = () => {
+      addItem(
+        {
+          slug: product.slug,
+          name: product.name,
+          price: priceToNumber(product.price),
+          image: product.image,
+          size: product.size,
+        },
+        qty,
+      );
+      setBusy(false);
+    };
+
+    const source = document.querySelector("[data-product-image]");
+    const rect = source?.getBoundingClientRect();
+
+    if (fly && rect) {
+      setBusy(true);
+      // Fly a clone to the cart; increment the count when it lands.
+      fly(product.image, rect, addNow);
+    } else {
+      addNow();
+    }
+  };
 
   return (
     <div className="max-w-md mb-8">
@@ -37,28 +77,16 @@ export function AddToCart({ product }: { product: Product }) {
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          disabled={outOfStock}
-          onClick={() => {
-            addItem(
-              {
-                slug: product.slug,
-                name: product.name,
-                price: priceToNumber(product.price),
-                image: product.image,
-                size: product.size,
-              },
-              qty,
-            );
-            openCart();
-          }}
-          className="flex-1 bg-ink text-white text-xs uppercase tracking-widest py-4 px-6 hover:bg-brand transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        <motion.button
+          type="button"
+          disabled={busy || outOfStock}
+          onClick={handleAdd}
+          animate={controls}
+          whileTap={{ scale: 0.96 }}
+          className="flex-1 bg-ink text-white text-xs uppercase tracking-widest py-4 px-6 hover:bg-brand transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {outOfStock ? "Out of Stock" : `Add to Cart — ${product.price}`}
-        </button>
-        <button className="border border-ink text-ink text-xs uppercase tracking-widest py-4 px-6 hover:bg-ink hover:text-white transition-colors">
-          Wishlist
-        </button>
+        </motion.button>
       </div>
     </div>
   );

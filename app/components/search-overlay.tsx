@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 import { SearchIcon } from "./icons";
 
 type SearchItem = {
@@ -111,29 +112,48 @@ export function SearchOverlay({
               </p>
             )}
 
-            {results.map((p) => (
-              <Link
-                key={p.slug}
-                href={`/shop/${p.slug}`}
-                onClick={onClose}
-                className="flex items-center gap-4 py-3 hover:bg-cream -mx-2 px-2 rounded"
-              >
-                <div className="relative w-14 h-14 shrink-0 overflow-hidden bg-cream">
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-ink truncate">{p.name}</p>
-                  <p className="text-xs text-ink-soft">{p.category}</p>
-                </div>
-                <span className="text-sm text-ink font-medium">{p.price}</span>
-              </Link>
-            ))}
+            <div className="relative">
+              <AnimatePresence mode="popLayout">
+                {results.map((p, i) => (
+                  <motion.div
+                    key={p.slug}
+                    layout
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85 }}
+                    transition={{
+                      type: "spring",
+                      visualDuration: 0.4,
+                      bounce: 0.18,
+                      delay: i * 0.03,
+                    }}
+                  >
+                    <Link
+                      href={`/shop/${p.slug}`}
+                      onClick={onClose}
+                      className="flex items-center gap-4 py-3 hover:bg-cream -mx-2 px-2 rounded"
+                    >
+                      <div className="relative w-14 h-14 shrink-0 overflow-hidden bg-cream">
+                        <Image
+                          src={p.image}
+                          alt={p.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm text-ink truncate">{p.name}</p>
+                        <p className="text-xs text-ink-soft">{p.category}</p>
+                      </div>
+                      <span className="text-sm text-ink font-medium">
+                        {p.price}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
 
             {!query.trim() && (
               <p className="text-sm text-ink-soft py-6 text-center">

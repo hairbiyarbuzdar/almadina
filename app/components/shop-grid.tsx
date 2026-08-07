@@ -1,7 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
-import gsap from "gsap";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "../lib/products";
 import { ProductCard } from "./product-card";
 import { ChevronLeft, ChevronRight } from "./icons";
@@ -33,7 +33,6 @@ export function ShopGrid({
   const filters = ["All", ...categories];
   const [active, setActive] = useState<string>(initialCategory);
   const [page, setPage] = useState(1);
-  const gridRef = useRef<HTMLDivElement>(null);
   const topRef = useRef<HTMLDivElement>(null);
 
   const products =
@@ -56,31 +55,10 @@ export function ShopGrid({
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // Re-animate the cards when the filter or page changes.
-  useLayoutEffect(() => {
-    const el = gridRef.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        el.children,
-        { autoAlpha: 0, y: 20 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.5,
-          ease: "power2.out",
-          stagger: 0.06,
-        },
-      );
-    }, gridRef);
-    return () => ctx.revert();
-  }, [active, safePage]);
-
   return (
     <div
       ref={topRef}
-      className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 lg:py-20 scroll-mt-28"
+      className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 py-14 lg:py-20 scroll-mt-28"
     >
       {/* Category filter */}
       <div className="flex flex-wrap justify-center gap-2.5 mb-12">
@@ -103,14 +81,27 @@ export function ShopGrid({
         {products.length} {products.length === 1 ? "product" : "products"}
       </p>
 
-      {/* Grid */}
-      <div
-        ref={gridRef}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12"
-      >
-        {paged.map((p, i) => (
-          <ProductCard key={p.slug} product={p} priority={i < 4} />
-        ))}
+      {/* Grid — items animate in/out as the filter or page changes. */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 relative">
+        <AnimatePresence mode="popLayout">
+          {paged.map((p, i) => (
+            <motion.div
+              key={p.slug}
+              layout
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.85 }}
+              transition={{
+                type: "spring",
+                visualDuration: 0.4,
+                bounce: 0.18,
+                delay: i * 0.03,
+              }}
+            >
+              <ProductCard product={p} priority={i < 4} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Pagination */}

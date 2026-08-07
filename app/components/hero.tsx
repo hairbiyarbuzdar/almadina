@@ -20,7 +20,7 @@ export function Hero() {
         <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-cream to-transparent" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 items-center min-h-[82vh] lg:min-h-[88vh]">
           {/* Copy */}
           <RevealStagger

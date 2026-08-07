@@ -38,7 +38,7 @@ export default function ContactPage() {
     <main className="flex-1">
       {/* Header */}
       <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
           <p className="text-[11px] uppercase tracking-[0.25em] text-brand mb-4">
             Get in touch
           </p>
@@ -54,7 +54,7 @@ export default function ContactPage() {
 
       {/* Form + details */}
       <section className="py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-16">
           <div>
             <h2 className="text-sm uppercase tracking-[0.18em] text-ink mb-6">
               Send us a message
@@ -104,7 +104,7 @@ export default function ContactPage() {
 
       {/* Store locations */}
       <section className="bg-cream py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <h2 className="font-display text-4xl sm:text-5xl text-ink text-center mb-12">
             Visit our stores
           </h2>

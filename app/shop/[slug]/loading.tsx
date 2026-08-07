@@ -3,7 +3,7 @@ import { Skeleton, ProductGridSkeleton } from "../../components/skeleton";
 export default function ProductLoading() {
   return (
     <main className="flex-1">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-20 lg:pb-28">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 pt-8 pb-20 lg:pb-28">
         {/* Breadcrumb */}
         <Skeleton className="h-3 w-40 mb-8" />
 
@@ -43,7 +43,7 @@ export default function ProductLoading() {
 
       {/* Related */}
       <section className="bg-cream py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center mb-12">
             <Skeleton className="h-8 w-56" />
           </div>

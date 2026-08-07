@@ -39,7 +39,7 @@ export default async function ProductPage({
 
   return (
     <main className="flex-1">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8 pb-20 lg:pb-28">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 pt-8 pb-20 lg:pb-28">
         {/* Breadcrumb */}
         <nav className="text-xs uppercase tracking-[0.15em] text-ink-soft mb-8">
           <Link href="/shop" className="hover:text-ink">
@@ -51,7 +51,10 @@ export default async function ProductPage({
 
         {/* Top: image + summary */}
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-          <div className="relative aspect-square overflow-hidden bg-cream">
+          <div
+            data-product-image
+            className="relative aspect-square overflow-hidden bg-cream"
+          >
             <Image
               src={product.image}
               alt={product.name}
@@ -108,7 +111,7 @@ export default async function ProductPage({
             <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-ink-soft border-t border-black/10 pt-6">
               <span className="flex items-center gap-2">
                 <TruckIcon className="w-5 h-5 text-ink" />
-                Free shipping over Rs 22,000
+                Free delivery over Rs 10,000
               </span>
               <span className="flex items-center gap-2">
                 <RefreshIcon className="w-5 h-5 text-ink" />
@@ -169,7 +172,7 @@ export default async function ProductPage({
 
       {/* Related */}
       <section className="bg-cream py-20 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <Reveal as="h2" className="font-display text-3xl sm:text-4xl text-ink text-center mb-12">
             You may also like
           </Reveal>

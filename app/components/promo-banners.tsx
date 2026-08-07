@@ -5,7 +5,7 @@ import { RevealStagger } from "./animations";
 export function PromoBanners() {
   return (
     <section className="pb-20 lg:pb-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
         <RevealStagger className="grid gap-6 lg:grid-cols-2" y={30}>
           {/* Left — new collection */}
           <div className="relative flex items-center overflow-hidden bg-cream min-h-[280px] p-8 sm:p-10">

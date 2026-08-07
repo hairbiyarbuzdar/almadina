@@ -4,8 +4,8 @@ import { RevealStagger } from "./animations";
 const FEATURES = [
   {
     Icon: TruckIcon,
-    title: "Free Shipping",
-    copy: "Free Shipping for orders over Rs 36,000",
+    title: "Free Delivery",
+    copy: "Free delivery for orders over Rs 10,000",
   },
   {
     Icon: RefreshIcon,
@@ -27,7 +27,7 @@ const FEATURES = [
 export function Features() {
   return (
     <section className="border-t border-black/5 pb-20 lg:pb-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-16">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 pt-16">
         <RevealStagger className="grid grid-cols-2 lg:grid-cols-4 gap-y-10 gap-x-6">
           {FEATURES.map(({ Icon, title, copy }) => (
             <div key={title} className="text-center px-2">

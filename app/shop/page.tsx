@@ -36,7 +36,7 @@ export default async function ShopPage({
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-ink/35" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-center text-center min-h-[42vh] lg:min-h-[48vh] text-white">
             <p className="text-[11px] uppercase tracking-[0.25em] mb-4 text-white/80">
               The Collection

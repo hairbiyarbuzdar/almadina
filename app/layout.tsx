@@ -31,7 +31,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-white text-ink">
+      <body className="min-h-full bg-white text-ink">
         <CartProvider>
           <ConditionalChrome>{children}</ConditionalChrome>
         </CartProvider>

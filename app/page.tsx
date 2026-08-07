@@ -17,7 +17,7 @@ async function FeaturedSection() {
 function FeaturedSkeleton() {
   return (
     <section className="py-20 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center gap-3 mb-12">
           <Skeleton className="h-9 w-72 max-w-full" />
           <Skeleton className="h-3 w-48" />
