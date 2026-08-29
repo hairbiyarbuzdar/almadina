@@ -95,7 +95,7 @@ export default function ContactPage() {
             <div className="mt-8 border-t border-black/10 pt-6">
               <p className="text-sm text-ink-soft leading-relaxed">
                 Prefer to order on WhatsApp? Send us your favourites and we&apos;ll
-                arrange cash-on-delivery to Quetta and Hub Chowki.
+                arrange cash-on-delivery anywhere in Pakistan.
               </p>
             </div>
           </div>

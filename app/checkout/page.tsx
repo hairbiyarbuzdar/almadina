@@ -175,20 +175,7 @@ export default function CheckoutPage() {
                 name="address"
                 autoComplete="street-address"
               />
-              <div>
-                <label className="block text-xs uppercase tracking-[0.14em] text-ink-soft mb-1.5">
-                  City<span className="text-red-500"> *</span>
-                </label>
-                <select
-                  name="city"
-                  required
-                  defaultValue="Quetta"
-                  className="w-full border border-black/15 px-4 py-3 text-sm text-ink bg-white focus:outline-none focus:border-ink"
-                >
-                  <option value="Quetta">Quetta</option>
-                  <option value="Hub Chowki">Hub Chowki</option>
-                </select>
-              </div>
+              <Field label="City" name="city" autoComplete="address-level2" />
             </div>
 
             {/* Payment method */}
