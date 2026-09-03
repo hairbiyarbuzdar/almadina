@@ -46,6 +46,18 @@ export default function RootLayout({
           !function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}();
           `}
         </Script>
+        <Script id="omnisend-init" strategy="afterInteractive">
+          {`
+          window.omnisend = window.omnisend || [];
+          omnisend.push(["brandID", "6a99da197cd5c356b9b56969"]);
+          omnisend.push(["track", "$pageViewed"]);
+          !function(){var e=document.createElement("script");
+          e.type="text/javascript",e.async=!0,
+          e.src="https://omnisnippet1.com/inshop/launcher-v2.js";
+          var t=document.getElementsByTagName("script")[0];
+          t.parentNode.insertBefore(e,t)}();
+          `}
+        </Script>
       </body>
     </html>
   );
