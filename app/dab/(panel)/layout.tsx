@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifySessionToken, SESSION_COOKIE } from "../../lib/auth";
 import { Sidebar } from "./sidebar";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function PanelLayout({
   children,

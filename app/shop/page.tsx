@@ -2,11 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ShopGrid } from "../components/shop-grid";
 import { getProducts, getCategoryNames } from "../lib/data";
+import { buildOpenGraph } from "../lib/seo";
+
+const SHOP_DESCRIPTION =
+  "Browse the full Al-Madina collection of clean skincare — cleansers, serums, moisturizers, masks, sunscreen, toners and eye care. Cash on delivery across Pakistan.";
 
 export const metadata: Metadata = {
-  title: "Shop — Al-Madina",
-  description:
-    "Browse the full Al-Madina collection of clean skincare — cleansers, serums, moisturizers, masks and more.",
+  title: "Shop All",
+  description: SHOP_DESCRIPTION,
+  alternates: { canonical: "/shop" },
+  openGraph: buildOpenGraph({
+    title: "Shop All Skincare & Cosmetics — Al-Madina",
+    description: SHOP_DESCRIPTION,
+    path: "/shop",
+  }),
 };
 
 export const dynamic = "force-dynamic";

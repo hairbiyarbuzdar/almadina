@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "../../lib/data";
+import { priceToNumber } from "../../lib/products";
+import { absoluteUrl, buildOpenGraph, SITE_NAME } from "../../lib/seo";
 import { ProductCard } from "../../components/product-card";
 import { AddToCart } from "../../components/add-to-cart";
 import { Reveal, RevealStagger } from "../../components/animations";
@@ -18,10 +20,30 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "Product — Al-Madina" };
+  if (!product) return { title: "Product not found" };
+
+  const path = `/shop/${slug}`;
+  const description = product.blurb || product.description.slice(0, 160);
+
   return {
-    title: `${product.name} — Al-Madina`,
-    description: product.description,
+    title: `${product.name} — ${product.size}`,
+    description,
+    alternates: { canonical: path },
+    openGraph: buildOpenGraph({
+      title: `${product.name} — ${SITE_NAME}`,
+      description,
+      path,
+      image: product.image,
+      imageWidth: 1200,
+      imageHeight: 1200,
+      imageAlt: product.name,
+    }),
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.name} — ${SITE_NAME}`,
+      description,
+      images: [product.image],
+    },
   };
 }
 
@@ -37,8 +59,39 @@ export default async function ProductPage({
   const related = await getRelatedProducts(slug);
   const onSale = product.badge?.startsWith("-");
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: absoluteUrl(product.image),
+    category: product.category,
+    brand: { "@type": "Brand", name: SITE_NAME },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: product.rating,
+      bestRating: 5,
+      ratingCount: 1,
+    },
+    offers: {
+      "@type": "Offer",
+      url: absoluteUrl(`/shop/${slug}`),
+      priceCurrency: "PKR",
+      price: priceToNumber(product.price),
+      availability:
+        (product.stock ?? 0) > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: SITE_NAME },
+    },
+  };
+
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="mx-auto max-w-[1536px] px-4 sm:px-6 lg:px-8 pt-8 pb-20 lg:pb-28">
         {/* Breadcrumb */}
         <nav className="text-xs uppercase tracking-[0.15em] text-ink-soft mb-8">

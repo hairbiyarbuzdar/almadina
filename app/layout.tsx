@@ -4,6 +4,13 @@ import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "./lib/cart-context";
 import { ConditionalChrome } from "./components/conditional-chrome";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+  absoluteUrl,
+} from "./lib/seo";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -17,9 +24,108 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Al-Madina — Beauty Inspired by Real Life",
-  description:
-    "Clean, non-toxic skincare and beauty products designed for everyone.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Beauty Inspired by Real Life`,
+    template: `%s — ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "skincare Pakistan",
+    "clean beauty",
+    "non-toxic skincare",
+    "cruelty-free cosmetics",
+    "serums",
+    "moisturizers",
+    "sunscreen",
+    "Al-Madina",
+    "Quetta beauty store",
+  ],
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — Beauty Inspired by Real Life`,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    locale: "en_US",
+    images: [
+      {
+        url: DEFAULT_OG_IMAGE,
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} skincare`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — Beauty Inspired by Real Life`,
+    description: SITE_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE_URL,
+  logo: absoluteUrl(DEFAULT_OG_IMAGE),
+  description: SITE_DESCRIPTION,
+  foundingDate: "1998",
+  address: [
+    {
+      "@type": "PostalAddress",
+      streetAddress: "Churi Gali",
+      addressLocality: "Quetta",
+      addressCountry: "PK",
+    },
+    {
+      "@type": "PostalAddress",
+      streetAddress: "Lasi Road",
+      addressLocality: "Hub Chowki",
+      addressCountry: "PK",
+    },
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+92-319-0189227",
+    contactType: "customer service",
+    areaServed: "PK",
+    availableLanguage: ["English", "Urdu"],
+  },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: SITE_NAME,
+  url: SITE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/shop?category={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -33,6 +139,14 @@ export default function RootLayout({
       className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-white text-ink">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <CartProvider>
           <ConditionalChrome>{children}</ConditionalChrome>
         </CartProvider>

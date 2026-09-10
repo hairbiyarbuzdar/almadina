@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "../components/contact-form";
+import { buildOpenGraph } from "../lib/seo";
 import {
   PhoneIcon,
   MailIcon,
@@ -9,9 +10,16 @@ import {
 } from "../components/icons";
 
 export const metadata: Metadata = {
-  title: "Contact — Al-Madina",
+  title: "Contact",
   description:
-    "Visit Al-Madina in Quetta and Hub Chowki, or get in touch by phone, WhatsApp or email.",
+    "Visit Al-Madina in Quetta (Churi Gali) and Hub Chowki (Lasi Road), or get in touch by phone, WhatsApp or email. Open Mon–Sat, 11am–9pm.",
+  alternates: { canonical: "/contact" },
+  openGraph: buildOpenGraph({
+    title: "Contact & Store Locations — Al-Madina",
+    description:
+      "Visit us in Quetta and Hub Chowki, or reach us by phone, WhatsApp or email.",
+    path: "/contact",
+  }),
 };
 
 const PHONE = "+92 319 0189227";

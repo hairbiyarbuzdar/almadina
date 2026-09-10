@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "./prisma";
 import { formatPrice, type Product, type Ingredient } from "./products";
 
@@ -50,13 +51,15 @@ export async function getProducts(): Promise<Product[]> {
   return rows.map(toProduct);
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const row = await prisma.product.findFirst({
-    where: { slug, active: true },
-    include: withCategory,
-  });
-  return row ? toProduct(row) : null;
-}
+export const getProductBySlug = cache(
+  async (slug: string): Promise<Product | null> => {
+    const row = await prisma.product.findFirst({
+      where: { slug, active: true },
+      include: withCategory,
+    });
+    return row ? toProduct(row) : null;
+  },
+);
 
 export async function getRelatedProducts(
   slug: string,
@@ -112,4 +115,14 @@ export async function getCategoryNames(): Promise<string[]> {
 export async function getAllProductSlugs(): Promise<string[]> {
   const rows = await prisma.product.findMany({ select: { slug: true } });
   return rows.map((r) => r.slug);
+}
+
+export async function getProductsForSitemap(): Promise<
+  { slug: string; updatedAt: Date }[]
+> {
+  return prisma.product.findMany({
+    where: { active: true },
+    select: { slug: true, updatedAt: true },
+    orderBy: { updatedAt: "desc" },
+  });
 }

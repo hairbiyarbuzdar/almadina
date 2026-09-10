@@ -3,11 +3,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { TruckIcon, RefreshIcon, HeartIcon, StarIcon } from "../components/icons";
 import { Reveal, RevealStagger, CountUp } from "../components/animations";
+import { buildOpenGraph } from "../lib/seo";
 
 export const metadata: Metadata = {
-  title: "Our Story — Al-Madina",
+  title: "Our Story",
   description:
-    "For more than 25 years, Al-Madina has brought clean, trusted skincare and cosmetics to families across generations.",
+    "For more than 25 years, Al-Madina has brought clean, trusted skincare and cosmetics to families across generations. From a single counter in Quetta to stores across Balochistan.",
+  alternates: { canonical: "/our-story" },
+  openGraph: buildOpenGraph({
+    title: "Our Story — Al-Madina",
+    description:
+      "For more than 25 years, Al-Madina has brought clean, trusted skincare and cosmetics to families across generations.",
+    path: "/our-story",
+  }),
 };
 
 const STATS = [

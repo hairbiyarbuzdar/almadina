@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Hero } from "./components/hero";
 import { FeaturedProducts } from "./components/featured-products";
@@ -6,6 +7,22 @@ import { Features } from "./components/features";
 import { AsSeenIn } from "./components/as-seen-in";
 import { getFeaturedProducts } from "./lib/data";
 import { Skeleton, ProductGridSkeleton } from "./components/skeleton";
+import { buildOpenGraph } from "./lib/seo";
+
+const HOME_TITLE = "Al-Madina — Clean Skincare & Cosmetics, Trusted Since 1998";
+const HOME_DESCRIPTION =
+  "Shop clean, non-toxic skincare and cosmetics trusted by families for over 25 years. Cleansers, serums, moisturizers, masks and sunscreen — cash on delivery across Pakistan.";
+
+export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
+  alternates: { canonical: "/" },
+  openGraph: buildOpenGraph({
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    path: "/",
+  }),
+};
 
 export const dynamic = "force-dynamic";
 
