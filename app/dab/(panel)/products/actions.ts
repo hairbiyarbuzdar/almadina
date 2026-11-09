@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/app/lib/prisma";
 import { slugify } from "@/app/lib/products";
 import { supabaseAdmin, PRODUCT_BUCKET } from "@/app/lib/supabase";
+import { requireAdmin } from "@/app/lib/require-admin";
+import { parseVariants, wholeNumber, type VariantInput } from "@/app/lib/variants";
 
 export type ProductActionState = { error: string | null };
 
@@ -83,14 +85,32 @@ export async function saveProduct(
   _prev: ProductActionState,
   formData: FormData,
 ): Promise<ProductActionState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const categoryId = String(formData.get("categoryId") ?? "").trim();
-  const price = toInt(formData.get("price"));
+  const price = wholeNumber(formData.get("price"), 1);
+  const hasVariants = formData.get("hasVariants") === "on";
+  const optionName = hasVariants ? String(formData.get("optionName") ?? "").trim() : null;
+  const stock = hasVariants ? 0 : wholeNumber(formData.get("stock"));
+  let variants: VariantInput[] = [];
+  try {
+    if (hasVariants) {
+      if (!optionName || optionName.length > 40) return { error: "Enter an option name, such as Shade (up to 40 characters)." };
+      variants = parseVariants(String(formData.get("variants") ?? "[]"));
+    }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Check the variations and try again." };
+  }
+  if (stock === null) return { error: "Enter a whole stock quantity of zero or more." };
 
   if (!name) return { error: "Product name is required." };
   if (!categoryId) return { error: "Please choose a category." };
   if (!price || price <= 0) return { error: "Please enter a valid price." };
+  const files = [...formData.values()].filter((value): value is File => value instanceof File && value.size > 0);
+  if (files.reduce((sum, file) => sum + file.size, 0) > 15 * 1024 * 1024) {
+    return { error: "Upload up to 15 MB of images per save. Save fewer images, then add the rest." };
+  }
 
   const base = slugify(String(formData.get("slug") ?? "").trim() || name);
   if (!base) return { error: "Could not derive a slug from the name." };
@@ -106,9 +126,27 @@ export async function saveProduct(
     if (file.size > 5 * 1024 * 1024) {
       return { error: "Image must be smaller than 5 MB." };
     }
-    image = await saveUploadedImage(file, base);
+    try {
+      image = await saveUploadedImage(file, base);
+    } catch {
+      return { error: "Could not upload the product image. Please try again." };
+    }
   }
   if (!image) return { error: "Please upload a product image." };
+
+  for (const [index, variant] of variants.entries()) {
+    const variantFile = formData.get(`variantImage-${index}`);
+    if (variantFile instanceof File && variantFile.size > 0) {
+      if (!variantFile.type.startsWith("image/") || variantFile.size > 5 * 1024 * 1024) {
+        return { error: `The image for “${variant.name}” must be an image smaller than 5 MB.` };
+      }
+      try {
+        variant.image = await saveUploadedImage(variantFile, `${base}-variation-${index}`);
+      } catch {
+        return { error: `Could not upload the image for “${variant.name}”. Please try again.` };
+      }
+    }
+  }
 
   const rating = Math.min(5, Math.max(1, toInt(formData.get("rating"), 5)));
 
@@ -119,7 +157,8 @@ export async function saveProduct(
     price,
     wasPrice: optInt(formData.get("wasPrice")),
     badge: strOrNull(formData.get("badge")),
-    stock: toInt(formData.get("stock")),
+    stock,
+    optionName,
     rating,
     size: String(formData.get("size") ?? "").trim(),
     blurb: String(formData.get("blurb") ?? "").trim(),
@@ -131,25 +170,53 @@ export async function saveProduct(
     active: formData.get("active") === "on",
   };
 
-  if (id) {
-    await prisma.product.update({ where: { id }, data });
-  } else {
-    await prisma.product.create({ data });
+  try {
+    await prisma.$transaction(async (tx) => {
+      const existing = id ? await tx.productVariant.findMany({ where: { productId: id } }) : [];
+      if (variants.some((v) => v.id && !existing.some((e) => e.id === v.id))) {
+        throw new Error("A variation does not belong to this product. Reload and try again.");
+      }
+      const product = id
+        ? await tx.product.update({ where: { id }, data })
+        : await tx.product.create({ data });
+      // Retain omitted variations for historical orders. Stored rows are normally
+      // disabled in the editor, rather than removed or recreated.
+      await tx.productVariant.updateMany({
+        where: { productId: product.id, id: { notIn: variants.flatMap((v) => v.id ? [v.id] : []) } },
+        data: { active: false },
+      });
+      for (const [position, variant] of variants.entries()) {
+        const { id: variantId, ...values } = variant;
+        if (variantId) {
+          await tx.productVariant.update({ where: { id: variantId }, data: { ...values, position } });
+        } else {
+          await tx.productVariant.create({ data: { ...values, position, productId: product.id } });
+        }
+      }
+    });
+  } catch (error) {
+    const code = (error as { code?: string }).code;
+    return { error: code === "P2002"
+      ? "A variation with that name already exists. Rename or re-enable the existing variation."
+      : "Could not save the product. Check your variations and try again." };
   }
 
+  revalidatePath("/", "layout");
   redirect("/dab/products");
 }
 
 export async function deleteProduct(id: string) {
+  await requireAdmin();
   await prisma.product.delete({ where: { id } });
   redirect("/dab/products");
 }
 
 export async function updateStock(formData: FormData) {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
-  const stock = toInt(formData.get("stock"));
-  if (id) {
-    await prisma.product.update({ where: { id }, data: { stock } });
+  const stock = wholeNumber(formData.get("stock"));
+  if (id && stock !== null) {
+    await prisma.product.updateMany({ where: { id, optionName: null }, data: { stock } });
   }
   revalidatePath("/dab/products");
 }

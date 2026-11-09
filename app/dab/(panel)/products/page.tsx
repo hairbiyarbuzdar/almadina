@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
-    include: { category: true },
+    include: { category: true, variants: { where: { active: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -58,7 +58,9 @@ export default async function ProductsPage() {
                 <td className="px-4 py-3 text-ink-soft">{p.category.name}</td>
                 <td className="px-4 py-3 text-ink">{formatPrice(p.price)}</td>
                 <td className="px-4 py-3">
-                  <form action={updateStock} className="flex items-center gap-1">
+                  {p.optionName ? <Link href={`/dab/products/${p.id}/edit`} className="text-sm text-ink hover:text-brand underline underline-offset-4">
+                    {p.variants.reduce((sum, v) => sum + v.stock, 0)} total · {p.variants.length} variations
+                  </Link> : <form action={updateStock} className="flex items-center gap-1">
                     <input type="hidden" name="id" value={p.id} />
                     <input
                       name="stock"
@@ -76,7 +78,7 @@ export default async function ProductsPage() {
                     >
                       Save
                     </button>
-                  </form>
+                  </form>}
                 </td>
                 <td className="px-4 py-3">
                   <span

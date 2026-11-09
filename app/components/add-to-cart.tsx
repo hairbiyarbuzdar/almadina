@@ -4,19 +4,28 @@ import { useState } from "react";
 import { motion, useAnimationControls } from "motion/react";
 import { useCart } from "../lib/cart-context";
 import { useFlyToCart } from "./fly-to-cart";
-import { priceToNumber, type Product } from "../lib/products";
+import { formatPrice, priceToNumber, type Product, type ProductVariant } from "../lib/products";
+import { cartLineKey } from "../lib/cart-lines";
 
-export function AddToCart({ product }: { product: Product }) {
-  const { addItem } = useCart();
+export function AddToCart({ product, variant }: { product: Product; variant?: ProductVariant }) {
+  const { addItem, items } = useCart();
   const fly = useFlyToCart();
   const [qty, setQty] = useState(1);
   const [busy, setBusy] = useState(false);
   const controls = useAnimationControls();
 
-  const outOfStock = product.stock !== undefined && product.stock <= 0;
+  const needsSelection = Boolean(product.optionName) && !variant;
+  const stock = variant?.stock ?? product.stock;
+  const price = variant ? variant.price ?? product.basePrice ?? priceToNumber(product.price) : priceToNumber(product.price);
+  const image = variant?.image || product.image;
+  const existingQty = items.find((item) => cartLineKey(item) === cartLineKey({ slug: product.slug, variantId: variant?.id }))?.qty ?? 0;
+  const remaining = stock === undefined ? 999 : Math.max(0, Math.min(999, stock) - existingQty);
+  const outOfStock = stock !== undefined && stock <= 0;
+  const atLimit = remaining <= 0 && !outOfStock;
+  const displayQty = Math.max(1, Math.min(qty, remaining));
 
   const handleAdd = () => {
-    if (busy || outOfStock) return;
+    if (busy || outOfStock || needsSelection || remaining <= 0) return;
 
     // Press feedback on the button itself (keyframes need a tween, not a spring).
     controls.start({
@@ -29,11 +38,14 @@ export function AddToCart({ product }: { product: Product }) {
         {
           slug: product.slug,
           name: product.name,
-          price: priceToNumber(product.price),
-          image: product.image,
+          price,
+          image,
           size: product.size,
+          variantId: variant?.id,
+          variantName: variant ? `${product.optionName}: ${variant.name}` : undefined,
+          stock,
         },
-        qty,
+        Math.min(displayQty, remaining),
       );
       setBusy(false);
     };
@@ -44,7 +56,7 @@ export function AddToCart({ product }: { product: Product }) {
     if (fly && rect) {
       setBusy(true);
       // Fly a clone to the cart; increment the count when it lands.
-      fly(product.image, rect, addNow);
+      fly(image, rect, addNow);
     } else {
       addNow();
     }
@@ -56,36 +68,38 @@ export function AddToCart({ product }: { product: Product }) {
         <span className="text-sm text-ink-soft">Quantity</span>
         <div className="flex items-center border border-black/15">
           <button
-            onClick={() => setQty((q) => Math.max(1, q - 1))}
+            onClick={() => setQty(Math.max(1, displayQty - 1))}
+            disabled={displayQty <= 1 || needsSelection}
             aria-label="Decrease quantity"
-            className="w-9 h-9 text-ink-soft hover:text-ink"
+            className="w-11 h-11 text-ink-soft hover:text-ink disabled:opacity-40"
           >
             −
           </button>
-          <span className="w-9 text-center text-sm">{qty}</span>
+          <span className="w-9 text-center text-sm">{displayQty}</span>
           <button
-            onClick={() => setQty((q) => q + 1)}
+            onClick={() => setQty(Math.min(remaining, displayQty + 1))}
+            disabled={needsSelection || displayQty >= remaining}
             aria-label="Increase quantity"
-            className="w-9 h-9 text-ink-soft hover:text-ink"
+            className="w-11 h-11 text-ink-soft hover:text-ink disabled:opacity-40"
           >
             +
           </button>
         </div>
-        {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
-          <span className="text-xs text-sale">Only {product.stock} left</span>
+        {!needsSelection && stock !== undefined && stock > 0 && stock <= 5 && (
+          <span className="text-xs text-sale">Only {stock} left</span>
         )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
         <motion.button
           type="button"
-          disabled={busy || outOfStock}
+          disabled={busy || outOfStock || needsSelection || atLimit}
           onClick={handleAdd}
           animate={controls}
           whileTap={{ scale: 0.96 }}
           className="flex-1 bg-ink text-white text-xs uppercase tracking-widest py-4 px-6 hover:bg-brand transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {outOfStock ? "Out of Stock" : `Add to Cart — ${product.price}`}
+          {needsSelection ? `Choose ${product.optionName?.toLowerCase()}` : outOfStock ? "Sold out" : atLimit ? "All available stock is in your cart" : busy ? "Adding…" : `Add to Cart — ${formatPrice(price)}`}
         </motion.button>
       </div>
     </div>

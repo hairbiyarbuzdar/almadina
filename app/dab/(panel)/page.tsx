@@ -9,7 +9,11 @@ export default async function DashboardHome() {
     prisma.product.count(),
     prisma.category.count(),
     prisma.order.count(),
-    prisma.product.count({ where: { stock: { lte: 5 } } }),
+    prisma.product.count({ where: { OR: [
+      { optionName: null, stock: { lte: 5 } },
+      { optionName: { not: null }, variants: { some: { active: true, stock: { lte: 5 } } } },
+      { optionName: { not: null }, variants: { none: { active: true } } },
+    ] } }),
     prisma.order.count({ where: { status: "pending" } }),
   ]);
 

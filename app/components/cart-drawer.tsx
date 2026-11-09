@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { cartLineKey } from "../lib/cart-lines";
 import { useCart } from "../lib/cart-context";
 import { formatPrice } from "../lib/products";
 import { BagIcon } from "./icons";
@@ -60,7 +61,7 @@ export function CartDrawer() {
           <>
             <div className="flex-1 overflow-y-auto px-6 py-4 divide-y divide-black/5">
               {items.map((item) => (
-                <div key={item.slug} className="flex gap-4 py-4">
+                <div key={cartLineKey(item)} className="flex gap-4 py-4">
                   <Link
                     href={`/shop/${item.slug}`}
                     onClick={closeCart}
@@ -82,13 +83,14 @@ export function CartDrawer() {
                     >
                       {item.name}
                     </Link>
+                    {item.variantName && <p className="text-xs text-ink-soft mt-1">{item.variantName}</p>}
                     <p className="text-xs text-ink-soft mt-0.5">
                       {formatPrice(item.price)} · {item.size}
                     </p>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center border border-black/15">
                         <button
-                          onClick={() => setQty(item.slug, item.qty - 1)}
+                          onClick={() => setQty(cartLineKey(item), item.qty - 1)}
                           aria-label="Decrease quantity"
                           className="w-7 h-7 text-ink-soft hover:text-ink"
                         >
@@ -96,7 +98,8 @@ export function CartDrawer() {
                         </button>
                         <span className="w-7 text-center text-sm">{item.qty}</span>
                         <button
-                          onClick={() => setQty(item.slug, item.qty + 1)}
+                          onClick={() => setQty(cartLineKey(item), item.qty + 1)}
+                          disabled={item.qty >= Math.min(999, item.stock ?? 999)}
                           aria-label="Increase quantity"
                           className="w-7 h-7 text-ink-soft hover:text-ink"
                         >
@@ -109,8 +112,8 @@ export function CartDrawer() {
                     </div>
                   </div>
                   <button
-                    onClick={() => removeItem(item.slug)}
-                    aria-label={`Remove ${item.name}`}
+                    onClick={() => removeItem(cartLineKey(item))}
+                    aria-label={`Remove ${item.name}${item.variantName ? ` — ${item.variantName}` : ""}`}
                     className="text-ink-soft hover:text-ink text-lg leading-none self-start"
                   >
                     &times;

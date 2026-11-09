@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { prisma } from "./prisma";
-import { formatPrice, type Product, type Ingredient } from "./products";
+import { formatPrice, type Product, type Ingredient, type ProductVariant } from "./products";
 
 type Row = {
   slug: string;
@@ -17,16 +17,22 @@ type Row = {
   ingredients: unknown;
   howToUse: string;
   stock: number;
+  optionName: string | null;
+  variants: ProductVariant[];
   category: { name: string };
 };
 
 function toProduct(row: Row): Product {
+  const variants = row.optionName ? row.variants : [];
+  const prices = variants.map((v) => v.price ?? row.price);
+  const price = prices.length ? Math.min(...prices) : row.price;
   return {
     slug: row.slug,
     name: row.name,
     category: row.category.name,
-    price: formatPrice(row.price),
-    wasPrice: row.wasPrice != null ? formatPrice(row.wasPrice) : undefined,
+    price: formatPrice(price),
+    basePrice: row.price,
+    wasPrice: row.wasPrice != null && row.wasPrice > price ? formatPrice(row.wasPrice) : undefined,
     badge: row.badge ?? undefined,
     rating: row.rating,
     image: row.image,
@@ -36,11 +42,17 @@ function toProduct(row: Row): Product {
     benefits: row.benefits,
     ingredients: (row.ingredients as Ingredient[]) ?? [],
     howToUse: row.howToUse,
-    stock: row.stock,
+    stock: row.optionName ? variants.reduce((sum, v) => sum + v.stock, 0) : row.stock,
+    optionName: row.optionName ?? undefined,
+    variants,
+    priceVaries: new Set(prices).size > 1,
   };
 }
 
-const withCategory = { category: { select: { name: true } } };
+const withCategory = {
+  category: { select: { name: true } },
+  variants: { where: { active: true }, orderBy: { position: "asc" as const } },
+};
 
 export async function getProducts(): Promise<Product[]> {
   const rows = await prisma.product.findMany({

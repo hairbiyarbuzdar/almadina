@@ -1,7 +1,3 @@
-/**
- * Hand-drawn botanical accents that echo the greenery in the design —
- * monstera-style leaves and slender eucalyptus sprigs. Pure SVG, no assets.
- */
 
 export function MonsteraLeaf({ className = "" }: { className?: string }) {
   return (

@@ -35,7 +35,7 @@ export function ProductCard({
         {/* View product on hover */}
         <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
           <span className="block w-full text-center bg-ink/90 text-white text-xs uppercase tracking-widest py-3">
-            View Product
+            {product.optionName ? "Choose options" : "View Product"}
           </span>
         </div>
       </div>
@@ -44,11 +44,12 @@ export function ProductCard({
         {product.wasPrice && (
           <span className="text-ink-soft line-through">{product.wasPrice}</span>
         )}
-        <span className="text-ink font-medium">{product.price}</span>
+        <span className="text-ink font-medium">{product.priceVaries ? "From " : ""}{product.price}</span>
       </div>
       <h3 className="text-sm text-ink-soft text-center mt-1.5 mb-2 px-2 group-hover:text-ink transition-colors">
         {product.name}
       </h3>
+      {product.optionName && <p className="text-xs text-ink-soft text-center mb-2">{product.variants?.length ?? 0} {product.optionName.toLowerCase()} options</p>}
       <Stars value={product.rating} />
     </Link>
   );

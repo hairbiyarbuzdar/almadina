@@ -8,16 +8,10 @@ import {
   useState,
 } from "react";
 
-const STORAGE_KEY = "almadina-cart";
+import { addCartLine, cartLineKey, normalizeCart, type CartLine } from "./cart-lines";
+export type { CartLine } from "./cart-lines";
 
-export type CartLine = {
-  slug: string;
-  name: string;
-  price: number; // whole rupees
-  image: string;
-  size: string;
-  qty: number;
-};
+const STORAGE_KEY = "almadina-cart";
 
 export type DetailedItem = CartLine & { lineTotal: number };
 
@@ -30,6 +24,7 @@ type CartContextValue = {
   setQty: (slug: string, qty: number) => void;
   removeItem: (slug: string) => void;
   clear: () => void;
+  replaceItems: (items: CartLine[]) => void;
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
@@ -49,7 +44,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) setLines(parsed);
+        setLines(normalizeCart(parsed));
       }
     } catch {
       // ignore corrupt storage
@@ -69,27 +64,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, hydrated]);
 
   const addItem = (item: Omit<CartLine, "qty">, qty = 1) => {
-    setLines((prev) => {
-      const existing = prev.find((i) => i.slug === item.slug);
-      if (existing) {
-        return prev.map((i) =>
-          i.slug === item.slug ? { ...i, qty: i.qty + qty } : i,
-        );
-      }
-      return [...prev, { ...item, qty }];
-    });
+    setLines((prev) => addCartLine(prev, item, qty));
   };
 
-  const setQty = (slug: string, qty: number) => {
-    setLines((prev) =>
-      qty <= 0
-        ? prev.filter((i) => i.slug !== slug)
-        : prev.map((i) => (i.slug === slug ? { ...i, qty } : i)),
-    );
+  const setQty = (key: string, qty: number) => {
+    setLines((prev) => normalizeCart(prev.map((line) => cartLineKey(line) === key ? { ...line, qty } : line)));
   };
 
-  const removeItem = (slug: string) =>
-    setLines((prev) => prev.filter((i) => i.slug !== slug));
+  const removeItem = (key: string) => setLines((prev) => prev.filter((line) => cartLineKey(line) !== key));
 
   const clear = () => setLines([]);
 
@@ -114,6 +96,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setQty,
     removeItem,
     clear,
+    replaceItems: (items) => setLines(normalizeCart(items)),
     isOpen,
     openCart: () => setIsOpen(true),
     closeCart: () => setIsOpen(false),

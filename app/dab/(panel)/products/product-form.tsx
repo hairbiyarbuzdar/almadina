@@ -1,8 +1,10 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { saveProduct, type ProductActionState } from "./actions";
+import { VariantEditor } from "./variant-editor";
+import type { VariantInput } from "@/app/lib/variants";
 
 type Ingredient = { name: string; note: string };
 
@@ -24,6 +26,8 @@ export type ProductFormValues = {
   howToUse?: string;
   image?: string;
   active?: boolean;
+  optionName?: string | null;
+  variants?: VariantInput[];
 };
 
 const initial: ProductActionState = { error: null };
@@ -35,9 +39,32 @@ export function ProductForm({
   categories: { id: string; name: string }[];
   product?: ProductFormValues;
 }) {
-  const [state, formAction, pending] = useActionState(saveProduct, initial);
+  const [state, setState] = useState<ProductActionState>(initial);
+  const [pending, startTransition] = useTransition();
   const [preview, setPreview] = useState<string | null>(product?.image ?? null);
   const isEdit = Boolean(product?.id);
+  const [hasVariants, setHasVariants] = useState(Boolean(product?.optionName));
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (pending) return;
+    const data = new FormData(event.currentTarget);
+    const files = [...data.values()].filter((value): value is File => value instanceof File && value.size > 0);
+    if (files.some((file) => file.size > 5 * 1024 * 1024) || files.reduce((sum, file) => sum + file.size, 0) > 15 * 1024 * 1024) {
+      setState({ error: "Images must be under 5 MB each and 15 MB combined. Upload fewer images, save, then add the rest." });
+      return;
+    }
+    // Submit without the form-action automatic reset, so validation errors
+    // preserve the admin's typed details and chosen image files.
+    startTransition(async () => {
+      try {
+        const result = await saveProduct(initial, data);
+        if (result) setState(result);
+      } catch {
+        setState({ error: "Could not save the product. Check your connection and try again." });
+      }
+    });
+  };
 
   const benefitsText = (product?.benefits ?? []).join("\n");
   const ingredientsText = (product?.ingredients ?? [])
@@ -45,7 +72,7 @@ export function ProductForm({
     .join("\n");
 
   return (
-    <form action={formAction} className="grid lg:grid-cols-3 gap-6">
+    <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
       {product?.id && <input type="hidden" name="id" value={product.id} />}
       <input type="hidden" name="currentImage" value={product?.image ?? ""} />
 
@@ -89,6 +116,7 @@ export function ProductForm({
           defaultValue={product?.howToUse}
           rows={3}
         />
+        <VariantEditor initial={product?.variants ?? []} enabled={hasVariants} onToggle={setHasVariants} optionName={product?.optionName} />
       </div>
 
       {/* Sidebar */}
@@ -147,12 +175,12 @@ export function ProductForm({
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Field
+            {!hasVariants ? <Field
               label="Stock"
               name="stock"
               type="number"
               defaultValue={product?.stock ?? 0}
-            />
+            /> : <p className="text-xs text-ink-soft self-center">Stock is managed per variation.</p>}
             <Field
               label="Rating (1–5)"
               name="rating"
@@ -178,7 +206,7 @@ export function ProductForm({
         </div>
 
         {state.error && (
-          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+          <p role="alert" className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
             {state.error}
           </p>
         )}

@@ -1,5 +1,14 @@
 export type Ingredient = { name: string; note: string };
 
+export type ProductVariant = {
+  id: string;
+  name: string;
+  color: string | null;
+  image: string | null;
+  price: number | null;
+  stock: number;
+};
+
 export type Product = {
   slug: string;
   name: string;
@@ -16,6 +25,10 @@ export type Product = {
   ingredients: Ingredient[];
   howToUse: string;
   stock?: number;
+  optionName?: string;
+  variants?: ProductVariant[];
+  priceVaries?: boolean;
+  basePrice?: number;
 };
 
 export const CATEGORIES = [

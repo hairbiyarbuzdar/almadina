@@ -98,7 +98,9 @@ export default async function OrderDetailPage({
           <tbody>
             {order.items.map((it) => (
               <tr key={it.id} className="border-b border-black/5 last:border-0">
-                <td className="px-4 py-3 text-ink">{it.name}</td>
+                <td className="px-4 py-3 text-ink">{it.name}
+                  {it.variantName && <p className="text-xs text-ink-soft mt-1">{it.variantName}</p>}
+                </td>
                 <td className="px-4 py-3 text-ink-soft">
                   {formatPrice(it.price)}
                 </td>

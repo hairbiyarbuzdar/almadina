@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getRelatedProducts } from "../../lib/data";
 import { priceToNumber } from "../../lib/products";
 import { absoluteUrl, buildOpenGraph, SITE_NAME } from "../../lib/seo";
 import { ProductCard } from "../../components/product-card";
-import { AddToCart } from "../../components/add-to-cart";
+import { ProductPurchase } from "../../components/product-purchase";
 import { Reveal, RevealStagger } from "../../components/animations";
-import { StarIcon, CheckIcon, TruckIcon, RefreshIcon } from "../../components/icons";
+import { CheckIcon } from "../../components/icons";
 
 // Render from the database on each request so dashboard edits show immediately.
 export const dynamic = "force-dynamic";
@@ -57,7 +56,6 @@ export default async function ProductPage({
   if (!product) notFound();
 
   const related = await getRelatedProducts(slug);
-  const onSale = product.badge?.startsWith("-");
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -102,77 +100,7 @@ export default async function ProductPage({
           <span>{product.category}</span>
         </nav>
 
-        {/* Top: image + summary */}
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-          <div
-            data-product-image
-            className="relative aspect-square overflow-hidden bg-cream"
-          >
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-            />
-            {product.badge && (
-              <span
-                className={`absolute top-4 left-4 text-xs font-medium px-2.5 py-1 rounded ${
-                  onSale ? "bg-sale text-white" : "bg-ink text-white"
-                }`}
-              >
-                {product.badge}
-              </span>
-            )}
-          </div>
-
-          <div className="lg:py-4">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-brand mb-3">
-              {product.category}
-            </p>
-            <h1 className="font-display text-4xl sm:text-5xl text-ink leading-tight mb-4">
-              {product.name}
-            </h1>
-
-            <div className="flex items-center gap-3 mb-5">
-              <Stars value={product.rating} />
-              <span className="text-xs text-ink-soft">
-                {product.rating}.0 · Verified reviews
-              </span>
-            </div>
-
-            <div className="flex items-baseline gap-3 mb-6">
-              {product.wasPrice && (
-                <span className="text-lg text-ink-soft line-through">
-                  {product.wasPrice}
-                </span>
-              )}
-              <span className="text-2xl font-medium text-ink">
-                {product.price}
-              </span>
-              <span className="text-sm text-ink-soft">/ {product.size}</span>
-            </div>
-
-            <p className="text-ink-soft leading-relaxed mb-8 max-w-md">
-              {product.description}
-            </p>
-
-            <AddToCart product={product} />
-
-            {/* Reassurance */}
-            <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm text-ink-soft border-t border-black/10 pt-6">
-              <span className="flex items-center gap-2">
-                <TruckIcon className="w-5 h-5 text-ink" />
-                Free delivery over Rs 10,000
-              </span>
-              <span className="flex items-center gap-2">
-                <RefreshIcon className="w-5 h-5 text-ink" />
-                30-day returns
-              </span>
-            </div>
-          </div>
-        </div>
+        <ProductPurchase product={product} />
 
         {/* What it's used for */}
         <Reveal as="section" className="mt-20 lg:mt-28 grid lg:grid-cols-2 gap-10 lg:gap-16">
@@ -237,18 +165,5 @@ export default async function ProductPage({
         </div>
       </section>
     </main>
-  );
-}
-
-function Stars({ value }: { value: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <StarIcon
-          key={i}
-          className={`w-4 h-4 ${i < value ? "text-brand" : "text-black/15"}`}
-        />
-      ))}
-    </div>
   );
 }

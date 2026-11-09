@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { cartLineKey } from "../lib/cart-lines";
 import { useCart } from "../lib/cart-context";
 import { formatPrice } from "../lib/products";
 import { CheckIcon } from "../components/icons";
@@ -12,7 +13,7 @@ import { placeOrder } from "./actions";
 type PayMethod = "cod" | "online";
 
 export default function CheckoutPage() {
-  const { items, subtotal, clear, hydrated } = useCart();
+  const { items, subtotal, clear, hydrated, replaceItems, setQty, removeItem } = useCart();
   const [placed, setPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState<number | null>(null);
   const [payment, setPayment] = useState<PayMethod>("cod");
@@ -26,29 +27,36 @@ export default function CheckoutPage() {
     setError(null);
     const fd = new FormData(e.currentTarget);
     setSubmitting(true);
-    const res = await placeOrder({
-      name: String(fd.get("name") ?? ""),
-      phone: String(fd.get("phone") ?? ""),
-      address: String(fd.get("address") ?? ""),
-      city: String(fd.get("city") ?? ""),
-      paymentMethod: payment,
-      items: items.map((i) => ({
-        slug: i.slug,
-        name: i.name,
-        price: i.price,
-        qty: i.qty,
-      })),
-    });
-    setSubmitting(false);
-    if (res.ok) {
-      setOrderNumber(res.orderNumber ?? null);
-      setPlacedMethod(payment);
-      setPlacedTotal(subtotal);
-      setPlaced(true);
-      clear(); // empties the cart + clears browser storage
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setError(res.error ?? "Something went wrong.");
+    try {
+      const res = await placeOrder({
+        name: String(fd.get("name") ?? ""),
+        phone: String(fd.get("phone") ?? ""),
+        address: String(fd.get("address") ?? ""),
+        city: String(fd.get("city") ?? ""),
+        paymentMethod: payment,
+        items: items.map((i) => ({
+          slug: i.slug,
+          variantId: i.variantId,
+          name: i.name,
+          price: i.price,
+          qty: i.qty,
+        })),
+      });
+      if (res.ok) {
+        setOrderNumber(res.orderNumber ?? null);
+        setPlacedMethod(payment);
+        setPlacedTotal(res.subtotal ?? subtotal);
+        setPlaced(true);
+        clear(); // empties the cart + clears browser storage
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        if (res.cart) replaceItems(res.cart);
+        setError(res.error ?? "Something went wrong.");
+      }
+    } catch {
+      setError("Could not connect to the shop. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -135,6 +143,7 @@ export default function CheckoutPage() {
           <h1 className="font-display text-4xl text-ink mb-3">
             Your cart is empty
           </h1>
+          {error && <p role="alert" className="text-sm text-ink mb-4">{error}</p>}
           <p className="text-ink-soft mb-8">
             Add a few favourites before checking out.
           </p>
@@ -247,7 +256,7 @@ export default function CheckoutPage() {
             </div>
 
             {error && (
-              <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+              <p role="alert" className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
                 {error}
               </p>
             )}
@@ -270,7 +279,7 @@ export default function CheckoutPage() {
             </h2>
             <div className="divide-y divide-black/5 border-y border-black/10">
               {items.map((item) => (
-                <div key={item.slug} className="flex gap-4 py-4">
+                <div key={cartLineKey(item)} className="flex gap-4 py-4">
                   <div className="relative w-16 h-16 shrink-0 overflow-hidden bg-cream">
                     <Image
                       src={item.image}
@@ -282,7 +291,14 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-ink">{item.name}</p>
-                    <p className="text-xs text-ink-soft mt-0.5">Qty {item.qty}</p>
+                    {item.variantName && <p className="text-xs text-ink-soft mt-1">{item.variantName}</p>}
+                    <Link href={`/shop/${item.slug}`} className="inline-block text-xs text-ink-soft underline underline-offset-4 py-2">{item.variantName ? "Choose another option" : "View product"}</Link>
+                    <div className="flex flex-wrap items-center gap-3 mt-1">
+                      <label className="text-xs text-ink-soft">Quantity
+                        <input aria-label={`Quantity for ${item.name}${item.variantName ? ` — ${item.variantName}` : ""}`} type="number" min={1} max={Math.min(999, item.stock ?? 999)} value={item.qty} onChange={(e) => { const qty = Number(e.target.value); if (Number.isInteger(qty) && qty > 0) setQty(cartLineKey(item), qty); }} className="w-16 ml-2 border border-black/15 px-2 py-2 text-ink" />
+                      </label>
+                      <button type="button" onClick={() => removeItem(cartLineKey(item))} className="text-xs text-ink-soft underline underline-offset-4 min-h-11">Remove</button>
+                    </div>
                   </div>
                   <span className="text-sm font-medium text-ink">
                     {formatPrice(item.lineTotal)}
@@ -321,10 +337,11 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-xs uppercase tracking-[0.14em] text-ink-soft mb-1.5">
+      <label htmlFor={`checkout-${name}`} className="block text-xs uppercase tracking-[0.14em] text-ink-soft mb-1.5">
         {label}<span className="text-red-500"> *</span>
       </label>
       <input
+        id={`checkout-${name}`}
         type={type}
         name={name}
         required
