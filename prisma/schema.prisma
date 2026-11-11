@@ -31,6 +31,7 @@ model Product {
   variants    ProductVariant[]
   rating      Int         @default(5)
   image       String // e.g. /uploads/products/xyz.jpg
+  images      String[]    @default([]) // additional gallery images, in display order
   blurb       String
   size        String
   description String

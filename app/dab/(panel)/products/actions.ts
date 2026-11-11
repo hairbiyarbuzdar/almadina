@@ -7,6 +7,7 @@ import { slugify } from "@/app/lib/products";
 import { supabaseAdmin, PRODUCT_BUCKET } from "@/app/lib/supabase";
 import { requireAdmin } from "@/app/lib/require-admin";
 import { parseVariants, wholeNumber, type VariantInput } from "@/app/lib/variants";
+import { parseImageReferences, validateImageFile, type ImageReference } from "@/app/lib/product-images";
 
 export type ProductActionState = { error: string | null };
 
@@ -60,12 +61,13 @@ async function uniqueSlug(base: string, excludeId?: string): Promise<string> {
 async function saveUploadedImage(
   file: File,
   slugBase: string,
+  uploaded: string[],
 ): Promise<string> {
   const bytes = Buffer.from(await file.arrayBuffer());
   const ext =
     (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") ||
     "jpg";
-  const filename = `${slugBase}-${Date.now()}.${ext}`;
+  const filename = `${slugBase}-${crypto.randomUUID()}.${ext}`;
 
   const { error } = await supabaseAdmin.storage
     .from(PRODUCT_BUCKET)
@@ -74,6 +76,7 @@ async function saveUploadedImage(
       upsert: false,
     });
   if (error) throw new Error(error.message);
+  uploaded.push(filename);
 
   const { data } = supabaseAdmin.storage
     .from(PRODUCT_BUCKET)
@@ -107,6 +110,21 @@ export async function saveProduct(
   if (!name) return { error: "Product name is required." };
   if (!categoryId) return { error: "Please choose a category." };
   if (!price || price <= 0) return { error: "Please enter a valid price." };
+  const current = id ? await prisma.product.findUnique({ where: { id }, select: { image: true, images: true } }) : null;
+  if (id && !current) return { error: "This product no longer exists. Return to Products and try again." };
+  let imageReferences: ImageReference[];
+  try {
+    imageReferences = parseImageReferences(String(formData.get("productImages") ?? "[]"), current ? [current.image, ...current.images] : []);
+    for (const reference of imageReferences) {
+      if ("uploadKey" in reference) {
+        const file = formData.get(`productImage-${reference.uploadKey}`);
+        if (!(file instanceof File)) return { error: "A photo could not be attached. Please add it again." };
+        validateImageFile(file);
+      }
+    }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Please check the product images." };
+  }
   const files = [...formData.values()].filter((value): value is File => value instanceof File && value.size > 0);
   if (files.reduce((sum, file) => sum + file.size, 0) > 15 * 1024 * 1024) {
     return { error: "Upload up to 15 MB of images per save. Save fewer images, then add the rest." };
@@ -116,33 +134,37 @@ export async function saveProduct(
   if (!base) return { error: "Could not derive a slug from the name." };
   const slug = await uniqueSlug(base, id || undefined);
 
-  // Image: use the newly uploaded file, else keep the current one.
-  let image = String(formData.get("currentImage") ?? "").trim();
-  const file = formData.get("image");
-  if (file instanceof File && file.size > 0) {
-    if (!file.type.startsWith("image/")) {
-      return { error: "The uploaded file must be an image." };
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      return { error: "Image must be smaller than 5 MB." };
-    }
-    try {
-      image = await saveUploadedImage(file, base);
-    } catch {
-      return { error: "Could not upload the product image. Please try again." };
+  for (const [index, variant] of variants.entries()) {
+    const file = formData.get(`variantImage-${index}`);
+    if (file instanceof File && file.size > 0) {
+      try { validateImageFile(file); } catch {
+        return { error: `Choose a JPG, PNG, WebP, AVIF, or GIF smaller than 5 MB for “${variant.name}”.` };
+      }
     }
   }
-  if (!image) return { error: "Please upload a product image." };
+  const uploaded: string[] = [];
+  const discardUploads = async () => {
+    if (!uploaded.length) return;
+    try { await supabaseAdmin.storage.from(PRODUCT_BUCKET).remove(uploaded); } catch { /* Preserve the original save error. */ }
+  };
+  const imageUrls: string[] = [];
+  try {
+    for (const reference of imageReferences) {
+      imageUrls.push("url" in reference ? reference.url : await saveUploadedImage(formData.get(`productImage-${reference.uploadKey}`) as File, base, uploaded));
+    }
+  } catch {
+    await discardUploads();
+    return { error: "Could not upload the product photos. Your changes are still here; please try saving again." };
+  }
+  const [image, ...images] = imageUrls;
 
   for (const [index, variant] of variants.entries()) {
     const variantFile = formData.get(`variantImage-${index}`);
     if (variantFile instanceof File && variantFile.size > 0) {
-      if (!variantFile.type.startsWith("image/") || variantFile.size > 5 * 1024 * 1024) {
-        return { error: `The image for “${variant.name}” must be an image smaller than 5 MB.` };
-      }
       try {
-        variant.image = await saveUploadedImage(variantFile, `${base}-variation-${index}`);
+        variant.image = await saveUploadedImage(variantFile, `${base}-variation-${index}`, uploaded);
       } catch {
+        await discardUploads();
         return { error: `Could not upload the image for “${variant.name}”. Please try again.` };
       }
     }
@@ -167,6 +189,7 @@ export async function saveProduct(
     ingredients: parseIngredients(formData.get("ingredients")),
     howToUse: String(formData.get("howToUse") ?? "").trim(),
     image,
+    images,
     active: formData.get("active") === "on",
   };
 
@@ -195,6 +218,7 @@ export async function saveProduct(
       }
     });
   } catch (error) {
+    await discardUploads();
     const code = (error as { code?: string }).code;
     return { error: code === "P2002"
       ? "A variation with that name already exists. Rename or re-enable the existing variation."

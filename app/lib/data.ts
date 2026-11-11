@@ -10,6 +10,7 @@ type Row = {
   badge: string | null;
   rating: number;
   image: string;
+  images: string[];
   blurb: string;
   size: string;
   description: string;
@@ -36,6 +37,7 @@ function toProduct(row: Row): Product {
     badge: row.badge ?? undefined,
     rating: row.rating,
     image: row.image,
+    images: row.images,
     blurb: row.blurb,
     size: row.size,
     description: row.description,

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { saveProduct, type ProductActionState } from "./actions";
+import { ImageEditor, type ImageDraft } from "./image-editor";
 import { VariantEditor } from "./variant-editor";
 import type { VariantInput } from "@/app/lib/variants";
 
@@ -25,6 +26,7 @@ export type ProductFormValues = {
   ingredients?: Ingredient[];
   howToUse?: string;
   image?: string;
+  images?: string[];
   active?: boolean;
   optionName?: string | null;
   variants?: VariantInput[];
@@ -41,7 +43,7 @@ export function ProductForm({
 }) {
   const [state, setState] = useState<ProductActionState>(initial);
   const [pending, startTransition] = useTransition();
-  const [preview, setPreview] = useState<string | null>(product?.image ?? null);
+  const [images, setImages] = useState<ImageDraft[]>(() => [...new Set([product?.image, ...(product?.images ?? [])].filter((url): url is string => Boolean(url)))].map((url) => ({ key: url, url, preview: url })));
   const isEdit = Boolean(product?.id);
   const [hasVariants, setHasVariants] = useState(Boolean(product?.optionName));
 
@@ -49,6 +51,8 @@ export function ProductForm({
     event.preventDefault();
     if (pending) return;
     const data = new FormData(event.currentTarget);
+    data.set("productImages", JSON.stringify(images.map((image) => image.url ? { url: image.url } : { uploadKey: image.key })));
+    for (const image of images) if (image.file) data.set(`productImage-${image.key}`, image.file);
     const files = [...data.values()].filter((value): value is File => value instanceof File && value.size > 0);
     if (files.some((file) => file.size > 5 * 1024 * 1024) || files.reduce((sum, file) => sum + file.size, 0) > 15 * 1024 * 1024) {
       setState({ error: "Images must be under 5 MB each and 15 MB combined. Upload fewer images, save, then add the rest." });
@@ -74,7 +78,6 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
       {product?.id && <input type="hidden" name="id" value={product.id} />}
-      <input type="hidden" name="currentImage" value={product?.image ?? ""} />
 
       {/* Main details */}
       <div className="lg:col-span-2 space-y-5 bg-white border border-black/10 rounded-lg p-6">
@@ -122,34 +125,7 @@ export function ProductForm({
       {/* Sidebar */}
       <div className="space-y-5">
         <div className="bg-white border border-black/10 rounded-lg p-6 space-y-4">
-          <div>
-            <span className="block text-xs uppercase tracking-[0.14em] text-ink-soft mb-1.5">
-              Image
-              {!isEdit && <span className="text-red-500"> *</span>}
-            </span>
-            {preview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-full aspect-square object-cover rounded border border-black/10 mb-3"
-              />
-            ) : (
-              <div className="w-full aspect-square rounded border border-dashed border-black/20 grid place-items-center text-xs text-ink-soft mb-3">
-                No image
-              </div>
-            )}
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) setPreview(URL.createObjectURL(f));
-              }}
-              className="block w-full text-xs text-ink-soft file:mr-3 file:py-2 file:px-3 file:border file:border-black/15 file:bg-cream file:text-ink file:text-xs"
-            />
-          </div>
+          <ImageEditor images={images} onChange={setImages} disabled={pending} />
 
           <SelectField
             label="Category"

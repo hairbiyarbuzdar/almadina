@@ -62,7 +62,7 @@ export default async function ProductPage({
     "@type": "Product",
     name: product.name,
     description: product.description,
-    image: absoluteUrl(product.image),
+    image: [product.image, ...(product.images ?? [])].map(absoluteUrl),
     category: product.category,
     brand: { "@type": "Brand", name: SITE_NAME },
     aggregateRating: {

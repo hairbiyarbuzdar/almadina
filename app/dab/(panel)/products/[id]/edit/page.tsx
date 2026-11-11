@@ -38,6 +38,7 @@ export default async function EditProductPage({
     ingredients: (product.ingredients as { name: string; note: string }[]) ?? [],
     howToUse: product.howToUse,
     image: product.image,
+    images: product.images,
     active: product.active,
     optionName: product.optionName,
     variants: product.variants,

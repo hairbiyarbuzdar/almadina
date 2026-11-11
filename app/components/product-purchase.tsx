@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { ProductGallery } from "./product-gallery";
 import { formatPrice, priceToNumber, type Product } from "../lib/products";
 import { AddToCart } from "./add-to-cart";
 import { StarIcon, TruckIcon, RefreshIcon } from "./icons";
@@ -10,15 +10,12 @@ export function ProductPurchase({ product }: { product: Product }) {
   const [variantId, setVariantId] = useState<string>();
   const variant = product.variants?.find((v) => v.id === variantId);
   const price = variant ? variant.price ?? product.basePrice ?? priceToNumber(product.price) : priceToNumber(product.price);
-  const image = variant?.image || product.image;
+  const images = [...new Set([variant?.image, product.image, ...(product.images ?? [])].filter((url): url is string => Boolean(url)))];
   const hasVariants = Boolean(product.optionName);
   const wasPrice = product.wasPrice && priceToNumber(product.wasPrice) > price ? product.wasPrice : null;
 
   return <div className="grid lg:grid-cols-2 gap-10 lg:gap-16">
-    <div data-product-image className="relative aspect-square overflow-hidden bg-cream">
-      <Image src={image} alt={`${product.name}${variant ? ` — ${variant.name}` : ""}`} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" />
-      {product.badge && <span className={`absolute top-4 left-4 text-xs font-medium px-2.5 py-1 rounded ${product.badge.startsWith("-") ? "bg-sale text-white" : "bg-ink text-white"}`}>{product.badge}</span>}
-    </div>
+    <ProductGallery key={variantId ?? "base"} images={images} name={`${product.name}${variant ? ` — ${variant.name}` : ""}`} badge={product.badge} />
     <div className="lg:py-4 min-w-0">
       <p className="text-[11px] uppercase tracking-[0.22em] text-brand mb-3">{product.category}</p>
       <h1 className="font-display text-4xl sm:text-5xl text-ink leading-tight mb-4">{product.name}</h1>

@@ -18,6 +18,7 @@ export type Product = {
   badge?: string;
   rating: number;
   image: string;
+  images?: string[];
   blurb: string;
   size: string;
   description: string;

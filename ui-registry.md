@@ -20,3 +20,19 @@ The variation editor and customer picker extend the existing product form and st
 Files: `app/dab/(panel)/products/variant-editor.tsx`, `app/components/product-purchase.tsx`.
 
 Shade labels always accompany colors. Sold-out options remain inspectable and explain why they cannot be added. Admin variation rows stack on phones and use two columns where space allows.
+
+## Product photos — 2026-11-11
+
+Files: `app/dab/(panel)/products/image-editor.tsx`, `app/components/product-gallery.tsx`.
+
+| Property | Pattern |
+| --- | --- |
+| Preview surfaces | `bg-cream`, square cropped images |
+| Admin photo rows | `border border-black/10 rounded p-2`, `gap-3` |
+| Labels | `text-sm font-medium text-ink`; hints `text-xs text-ink-soft` |
+| Actions | `text-xs` with underline and `min-h-11` |
+| Gallery navigation | `min-h-11 px-3 text-sm text-ink border border-black/15 hover:border-ink` |
+| Selected thumbnail | `border-2 border-ink`; unselected `border-transparent` |
+| Keyboard focus | `focus-visible:outline-2 focus-visible:outline-brand` |
+
+The cover remains the shop and cart image. Additional product photos are browsable below the main image. Thumbnails scroll horizontally within their container on phones. Selecting a variation starts its gallery at the shade image; browsing other photos does not change the chosen shade.
