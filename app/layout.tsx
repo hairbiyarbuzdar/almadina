@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "./lib/cart-context";
@@ -12,15 +12,19 @@ import {
   absoluteUrl,
 } from "./lib/seo";
 
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/inter-latin-variable.woff2",
   variable: "--font-sans",
-  subsets: ["latin"],
+  weight: "100 900",
+  display: "swap",
 });
 
-const cormorant = Cormorant_Garamond({
+const cormorant = localFont({
+  src: "./fonts/cormorant-garamond-latin-variable.woff2",
   variable: "--font-display",
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
+  weight: "400 700",
+  display: "swap",
+  adjustFontFallback: "Times New Roman",
 });
 
 export const metadata: Metadata = {
